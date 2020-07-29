@@ -39,3 +39,56 @@ location /test/
 proxy_pass http://127.0.0.1:8080/img; 
 }
 即：请求/test/1.jpg（省略了协议与域名），将会被nginx转发请求到http://127.0.0.1:8080/img1.jpg（未附加/test/路径，但附加了/test/之后的路径）。
+
+以下特殊 是proxy_pass http://127.0.0.1:8080/img;  带img目录的情况
+location /test    #不能加“/”, 如果加了,那么这个proxy_pass http://127.0.0.1:8080/img也得加杠; 如：proxy_pass http://127.0.0.1:8080/img/;   如果没加会变成访问http://127.0.0.1:8080/img1.png
+{ 
+proxy_pass http://127.0.0.1:8080/img;    效果一样 
+proxy_pass http://127.0.0.1:8080/img/;
+}
+ 
+location /test/aaaa 
+{ 
+proxy_pass http://127.0.0.1:8080/img;   效果一样,和y一开始说proxy_pass 末尾加不加“/” 行为不一样了
+proxy_pass http://127.0.0.1:8080/img/; 
+即：请求/test/1.jpg、/test/aaa/1.jpg（省略了协议与域名），将会被nginx转发请求到http://127.0.0.1:8080/img/1.jpg（未附加/test/和子目录路径）。
+
+4.【location语法】
+location [=|~|~*|^~]  /uri/  { … }
+
+= 开头表示精确匹配  此时和location中的root没关系了。至于location外面的root才能影响= 的配置路径
+
+^~ 开头表示uri以某个常规字符串开头，理解为匹配 url路径即可。nginx不对url做编码，因此请求为/static/20%/aa，可以被规则^~ /static/ /aa匹配到（注意是空格）。
+
+~ 开头表示区分大小写的正则匹配
+
+~* 开头表示不区分大小写的正则匹配
+
+!~和!~*分别为区分大小写不匹配及不区分大小写不匹配 的正则
+
+/ 通用匹配，任何请求都会匹配到。
+
+1、精准匹配和一般匹配
+location /zg/ 
+  { 
+    root html;
+    index index.html;
+  }
+请求URL：http://192.168.60.106/zg/  访问时匹配的是：=/zg/
+
+2、精准匹配和一般匹配，uri后面不带“/”匹配
+location /zg
+  { 
+    root html;
+    index index.html;
+  }
+请求URL：http://192.168.60.106/zg/  访问时匹配的是：/zg
+
+3、精准匹配和一般匹配，uri前面和后面都不带“/”
+location zg
+  { 
+    root html;
+    index index.html;
+  }
+请求URL：http://192.168.60.106/zg/ 访问时匹配的是：= zg
+
