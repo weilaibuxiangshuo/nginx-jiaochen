@@ -1,0 +1,41 @@
+1.【alias】
+
+别名配置，用于访问文件系统，在匹配到location配置的URL路径后，指向【alias】配置的路径。如：
+
+location /test/ 
+{ 
+alias /home/sftp/img/; 
+}
+即：请求/test/1.jpg（省略了协议与域名），将会返回文件/home/sftp/img/1.jpg。
+
+2.【root】
+
+根路径配置，用于访问文件系统，在匹配到location配置的URL路径后，指向【root】配置的路径，并把location配置路径附加到其后。如：
+
+location /test/ 
+{ 
+root /home/sftp/img/; 
+}
+即：请求/test/1.jpg（省略了协议与域名），将会返回文件/home/sftp/img/test/1.jpg，相较于alias，使用root会把/test/附加到根目录之后。
+
+3.【proxy_pass】
+
+反向代理配置，用于代理请求，适用于前后端负载分离或多台机器、服务器负载分离的场景，在匹配到location配置的URL路径后，转发请求到【proxy_pass】配置的URL，是否会附加location配置路径与【proxy_pass】配置的路径后是否有"/"有关，有"/"则不附加，如：
+
+location /test/ 
+{ 
+proxy_pass http://127.0.0.1:8080/; 
+}
+即：请求/test/1.jpg（省略了协议与域名），将会被nginx转发请求到http://127.0.0.1:8080/1.jpg（未附加/test/路径）。
+
+location /test/ 
+{ 
+proxy_pass http://127.0.0.1:8080; 
+}
+即：请求/test/1.jpg（省略了协议与域名），将会被nginx转发请求到http://127.0.0.1:8080/test/1.jpg（附加/test/路径）。
+
+location /test/ 
+{ 
+proxy_pass http://127.0.0.1:8080/img; 
+}
+即：请求/test/1.jpg（省略了协议与域名），将会被nginx转发请求到http://127.0.0.1:8080/img1.jpg（未附加/test/路径，但附加了/test/之后的路径）。
